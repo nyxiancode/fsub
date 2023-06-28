@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+#
+# Powered: @SayaNeko
+# Fsub <https://github.com/nekolocal/fsub/>
+
+# start
+python3 main.py
