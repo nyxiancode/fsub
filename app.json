@@ -7,7 +7,7 @@
     "file",
     "sharing"
   ],
-  "logo": "https://telegra.ph/file/9dc4e335feaaf6a214818.jpg",
+  "logo": "https://camo.githubusercontent.com/1b084fd09d95b388728390e130735ac434a8dbfb4b439ce72cea6999a553c119/68747470733a2f2f74656c656772612e70682f66696c652f3362323161353463373836623439353866323635642e6a7067",
   "env": {
     "TG_BOT_TOKEN": {
       "description": "Masukan Bot token, Dapatkan dari t.me/BotFather",
