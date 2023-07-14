@@ -39,14 +39,15 @@ def start_button(client):
             InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
             InlineKeyboardButton(text="ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
-        buttons.append([
-            InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
-        ])
-
     if FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
         ])
+        buttons.append([
+            InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
+        ])
+
+
 
     return buttons
 
