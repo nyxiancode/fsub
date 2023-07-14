@@ -1,4 +1,4 @@
-from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2, FORCE_MSG
+from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2
 from pyrogram.types import InlineKeyboardButton
 
 
@@ -64,32 +64,3 @@ def fsub_button(client, message):
         pass
 
     return buttons
-
-
-def force_button(client, message):
-    buttons = []
-
-    if FORCE_SUB_CHANNEL2:
-        buttons.append([
-            InlineKeyboardButton(text="FORCE_SUB_CHANNEL2", callback_data="force_sub_channel2"),
-        ])
-
-    if FORCE_SUB_CHANNEL:
-        buttons.append([
-            InlineKeyboardButton(text="FORCE_SUB_CHANNEL", callback_data="force_sub_channel"),
-        ])
-
-    if FORCE_SUB_GROUP:
-        buttons.append([
-            InlineKeyboardButton(text="FORCE_SUB_GROUP", callback_data="force_sub_group"),
-        ])
-
-    buttons.extend([
-        [
-            InlineKeyboardButton(text="HELP", callback_data="help"),
-            InlineKeyboardButton(text="CLOSE", callback_data="close"),
-        ],
-    ])
-
-    return buttons
-
