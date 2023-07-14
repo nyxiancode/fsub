@@ -5,14 +5,14 @@ from pyrogram.types import InlineKeyboardButton
 def start_button(client):
     buttons = []
 
-    if FORCE_SUB_CHANNEL:
-        buttons.append([
-            InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
-        ])
-
     if FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
+        ])
+
+    if FORCE_SUB_CHANNEL:
+        buttons.append([
+            InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
         ])
 
     if FORCE_SUB_GROUP:
@@ -35,28 +35,17 @@ def start_button(client):
 def fsub_button(client, message):
     buttons = []
 
-    if FORCE_SUB_CHANNEL:
-        buttons.append([
-            InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
-        ])
-
     if FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ2", url=client.invitelink3),
         ])
 
-    if not FORCE_SUB_CHANNEL2:
-        try:
-            buttons.append([
-                InlineKeyboardButton(
-                    text="ᴄᴏʙᴀ ʟᴀɢɪ",
-                    url=f"https://t.me/{client.username}?start={message.command[1]}",
-                )
-            ])
-        except IndexError:
-            pass
+    if FORCE_SUB_CHANNEL:
+        buttons.append([
+            InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
+        ])
 
-    if FORCE_SUB_GROUP:
+    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
         buttons.insert(0, [
             InlineKeyboardButton(text="ᴊᴏɪɴ ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
