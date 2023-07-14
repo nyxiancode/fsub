@@ -23,8 +23,6 @@ def start_button(client):
     buttons.extend([
         [
             InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
-        ],
-        [
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
         ],
     ])
