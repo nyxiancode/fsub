@@ -38,6 +38,7 @@ DB_URI = os.environ.get("DATABASE_URL", "")
 
 # ID dari Channel Atau Group Untuk Wajib Subscribenya
 FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "0"))
+FORCE_SUB_CHANNEL2 = int(os.environ.get("FORCE_SUB_CHANNEL2", "0"))
 FORCE_SUB_GROUP = int(os.environ.get("FORCE_SUB_GROUP", "0"))
 
 TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
@@ -55,7 +56,7 @@ except ValueError:
 # Pesan Saat Memaksa Subscribe
 FORCE_MSG = os.environ.get(
     "FORCE_SUB_MESSAGE",
-    "<b>Hello {first}\n\nAnda harus bergabung di Channel/Grup saya Terlebih dahulu untuk Melihat File yang saya Bagikan\n\nSilakan Join Ke Channel & Group Terlebih Dahulu</b>",
+    "Kamu harus join channel & grup terlebih dahulu ya sebelum melihat file ini.\n\nTutorial :\n├[ 1. Start bot\n├[ 2. Join Channel | Join semua\n├[ 3. Try Again / Coba lagi\n├[ 4. Start ulang bot\n├[ 5. Tunggu hingga file muncul\n└[ 6. Selamat menikmati konten channel kami\n\nNote : \nJangan spam ya karna bisa merusak bot.\nSekian dan Terima Kasih\n\nInfo: Mau Bot Seperti Ini,Cek di @NekoLocal",
 )
 
 # Atur Teks Kustom Anda di sini, Simpan (None) untuk Menonaktifkan Teks Kustom
