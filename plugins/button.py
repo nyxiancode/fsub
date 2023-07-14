@@ -1,7 +1,7 @@
 from pyrogram.types import InlineKeyboardButton
 from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2
 
-def start_button(client):
+async def start_button(client):
     buttons = [
         [
             InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
@@ -47,7 +47,7 @@ def start_button(client):
 
     return buttons
 
-def fsub_button(client, message):
+async def fsub_button(client, message):
     buttons = []
 
     if not FORCE_SUB_CHANNEL2:
@@ -81,9 +81,9 @@ def fsub_button(client, message):
 
     return buttons
 
-def get_all_buttons(client, message):
-    start_buttons = start_button(client)
-    fsub_buttons = fsub_button(client, message)
+async def get_all_buttons(client, message):
+    start_buttons = await start_button(client)
+    fsub_buttons = await fsub_button(client, message)
 
     if FORCE_SUB_CHANNEL2:
         user_id = message.from_user.id
