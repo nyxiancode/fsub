@@ -7,7 +7,7 @@ def start_button(client):
 
     if FORCE_SUB_CHANNEL2:
         buttons.append([
-            InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
+            InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ2", url=client.invitelink3),
         ])
 
     if FORCE_SUB_CHANNEL:
