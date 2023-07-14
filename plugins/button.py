@@ -26,24 +26,28 @@ def start_button(client):
         buttons.insert(0, [
             InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
         ])
+        if FORCE_SUB_CHANNEL2:
+            buttons.insert(1, [
+                InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
+            ])
         buttons.append([
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
         ])
 
     if FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
         buttons.insert(0, [
-            InlineKeyboardButton(text="ɢʀᴏᴜᴘ", url=client.invitelink2),
+            InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
         ])
         buttons.insert(0, [
             InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
+            InlineKeyboardButton(text="ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
+        if FORCE_SUB_CHANNEL2:
+            buttons.insert(2, [
+                InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
+            ])
         buttons.append([
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
-        ])
-
-    if FORCE_SUB_CHANNEL2:
-        buttons.insert(1, [
-            InlineKeyboardButton(text="CHANNEL2", url=client.invitelink3),
         ])
 
     return buttons
