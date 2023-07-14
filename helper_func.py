@@ -141,7 +141,40 @@ async def get_message_id(client, message):
             return msg_id
 
 
+async def handle_force_sub_channel2(filter, client, message):
+    user_id = message.from_user.id
+    if user_id not in ADMINS and FORCE_SUB_CHANNEL2:
+        try:
+            member = await client.get_chat_member(
+                chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
+            )
+            if member.status not in [
+                ChatMemberStatus.OWNER,
+                ChatMemberStatus.ADMINISTRATOR,
+                ChatMemberStatus.MEMBER,
+            ]:
+                invitelink2 = client.invitelink2
+                await message.reply_text(
+                    "Silakan bergabung dengan CHANNEL2 terlebih dahulu untuk menggunakan perintah ini.",
+                    reply_markup=InlineKeyboardMarkup(
+                        [[InlineKeyboardButton("Join CHANNEL2", url=invitelink2)]]
+                    ),
+                )
+                return False
+        except UserNotParticipant:
+            invitelink2 = client.invitelink2
+            await message.reply_text(
+                "Silakan bergabung dengan CHANNEL2 terlebih dahulu untuk menggunakan perintah ini.",
+                reply_markup=InlineKeyboardMarkup(
+                    [[InlineKeyboardButton("Join CHANNEL2", url=invitelink2)]]
+                ),
+            )
+            return False
+    return True
+
+
 subsgc = filters.create(subsgroup)
 subsch = filters.create(subschannel)
 subsch2 = filters.create(subschannel2)
 subsall = filters.create(is_subscribed)
+force_sub_channel2_handler = filters.create(handle_force_sub_channel2)
