@@ -21,12 +21,23 @@ async def subschannel(filter, client, update):
             chat_id=FORCE_SUB_CHANNEL, user_id=user_id
         )
     except UserNotParticipant:
-        try:
-            member = await client.get_chat_member(
-                chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
-            )
-        except UserNotParticipant:
-            return False
+        return False
+
+    return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
+
+
+async def subschannel2(filter, client, update):
+    if not FORCE_SUB_CHANNEL2:
+        return True
+    user_id = update.from_user.id
+    if user_id in ADMINS:
+        return True
+    try:
+        member = await client.get_chat_member(
+            chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
+        )
+    except UserNotParticipant:
+        return False
 
     return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
 
@@ -132,4 +143,5 @@ async def get_message_id(client, message):
 
 subsgc = filters.create(subsgroup)
 subsch = filters.create(subschannel)
+subsch2 = filters.create(subschannel2)
 subsall = filters.create(is_subscribed)
