@@ -5,13 +5,13 @@ from pyrogram.types import InlineKeyboardButton
 def start_button(client):
     buttons = []
 
-    if not FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP:
+    if not FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
         ])
 
-    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
+    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
@@ -20,7 +20,7 @@ def start_button(client):
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
         ])
 
-    if FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP:
+    if FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
         ])
@@ -29,7 +29,7 @@ def start_button(client):
             InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
         ])
 
-    if FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
+    if FORCE_SUB_CHANNEL and FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
         ])
@@ -68,7 +68,7 @@ def fsub_button(client, message):
         except IndexError:
             pass
 
-    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
+    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ᴊᴏɪɴ ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
@@ -76,6 +76,7 @@ def fsub_button(client, message):
     if FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
         buttons.append([
             InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
+            InlineKeyboardButton(text="ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
 
     if FORCE_SUB_CHANNEL and FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
