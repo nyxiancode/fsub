@@ -50,11 +50,6 @@ def start_button(client):
 def fsub_button(client, message):
     buttons = []
 
-    if FORCE_SUB_CHANNEL2:
-        buttons.append([
-            InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ2", url=client.invitelink3),
-        ])
-
     if not FORCE_SUB_CHANNEL2:
         try:
             buttons.append([
@@ -89,6 +84,32 @@ def fsub_button(client, message):
 def get_all_buttons(client, message):
     start_buttons = start_button(client)
     fsub_buttons = fsub_button(client, message)
+
+    if FORCE_SUB_CHANNEL2:
+        user_id = message.from_user.id
+        if user_id not in ADMINS:
+            try:
+                member = await client.get_chat_member(
+                    chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
+                )
+                if member.status not in [
+                    ChatMemberStatus.OWNER,
+                    ChatMemberStatus.ADMINISTRATOR,
+                    ChatMemberStatus.MEMBER,
+                ]:
+                    start_buttons.insert(0, [
+                        InlineKeyboardButton(
+                            text="Join CHANNEL2",
+                            url=client.invitelink3,
+                        ),
+                    ])
+            except UserNotParticipant:
+                start_buttons.insert(0, [
+                    InlineKeyboardButton(
+                        text="Join CHANNEL2",
+                        url=client.invitelink3,
+                    ),
+                ])
 
     all_buttons = start_buttons + fsub_buttons
 
