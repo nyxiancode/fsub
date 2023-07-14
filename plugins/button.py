@@ -1,4 +1,4 @@
-from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2
+from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2, FORCE_MSG
 from pyrogram.types import InlineKeyboardButton
 
 
@@ -92,3 +92,14 @@ def force_button(client, message):
     ])
 
     return buttons
+
+
+@Bot.on_message(filters.command("start") & filters.private)
+async def not_joined(client: Bot, message: Message):
+    buttons = fsub_button(client, message)
+    await message.reply_text(
+        text=f"{FORCE_MSG}\n\n<b>Ini adalah teks tambahan di luar tombol.</b>",
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
+        disable_web_page_preview=True,
+    )
