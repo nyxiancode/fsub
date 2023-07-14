@@ -1,5 +1,5 @@
+from telegram import InlineKeyboardButton
 from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2
-
 
 def start_button(client):
     if not FORCE_SUB_CHANNEL and not FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
@@ -51,7 +51,6 @@ def start_button(client):
             ],
         ]
         return buttons
-
 
 def fsub_button(client, message):
     if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL2:
