@@ -1,3 +1,7 @@
+# (©)Codexbotz
+# Recode by @mrismanaziz
+# t.me/SharingUserbot & t.me/Lunatic0de
+
 import asyncio
 import base64
 import re
@@ -11,7 +15,7 @@ from config import ADMINS, FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL
 
 
 async def subschannel(filter, client, update):
-    if not FORCE_SUB_CHANNEL and not FORCE_SUB_CHANNEL2:
+    if not FORCE_SUB_CHANNEL:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
@@ -20,6 +24,20 @@ async def subschannel(filter, client, update):
         member = await client.get_chat_member(
             chat_id=FORCE_SUB_CHANNEL, user_id=user_id
         )
+    except UserNotParticipant:
+        return False
+
+    return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
+
+
+async def subsgroup(filter, client, update):
+    if not FORCE_SUB_GROUP:
+        return True
+    user_id = update.from_user.id
+    if user_id in ADMINS:
+        return True
+    try:
+        member = await client.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
     except UserNotParticipant:
         return False
 
@@ -42,24 +60,12 @@ async def subschannel2(filter, client, update):
     return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
 
 
-async def subsgroup(filter, client, update):
-    if not FORCE_SUB_GROUP:
-        return True
-    user_id = update.from_user.id
-    if user_id in ADMINS:
-        return True
-    try:
-        member = await client.get_chat_member(chat_id=FORCE_SUB_GROUP, user_id=user_id)
-    except UserNotParticipant:
-        return False
-
-    return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
-
-
 async def is_subscribed(filter, client, update):
-    if not FORCE_SUB_CHANNEL and not FORCE_SUB_CHANNEL2:
+    if not FORCE_SUB_CHANNEL:
         return True
     if not FORCE_SUB_GROUP:
+        return True
+    if not FORCE_SUB_CHANNEL2:
         return True
     user_id = update.from_user.id
     if user_id in ADMINS:
@@ -73,12 +79,13 @@ async def is_subscribed(filter, client, update):
             chat_id=FORCE_SUB_CHANNEL, user_id=user_id
         )
     except UserNotParticipant:
-        try:
-            member = await client.get_chat_member(
-                chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
-            )
-        except UserNotParticipant:
-            return False
+        return False
+    try:
+        member = await client.get_chat_member(
+            chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
+        )
+    except UserNotParticipant:
+        return False
 
     return member.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER]
 
@@ -91,7 +98,7 @@ async def encode(string):
 
 
 async def decode(base64_string):
-    base64_string = base64_string.strip("=") # links generated before this commit will be having = sign, hence striping them to handle padding errors.
+    base64_string = base64_string.strip("=")  # links generated before this commit will be having = sign, hence striping them to handle padding errors.
     base64_bytes = (base64_string + "=" * (-len(base64_string) % 4)).encode("ascii")
     string_bytes = base64.urlsafe_b64decode(base64_bytes)
     string = string_bytes.decode("ascii")
@@ -102,7 +109,7 @@ async def get_messages(client, message_ids):
     messages = []
     total_messages = 0
     while total_messages != len(message_ids):
-        temb_ids = message_ids[total_messages : total_messages + 200]
+        temb_ids = message_ids[total_messages: total_messages + 200]
         try:
             msgs = await client.get_messages(
                 chat_id=client.db_channel.id, message_ids=temb_ids
@@ -137,44 +144,9 @@ async def get_message_id(client, message):
         if channel_id.isdigit():
             if f"-100{channel_id}" == str(client.db_channel.id):
                 return msg_id
-        elif channel_id == client.db_channel.username:
-            return msg_id
-
-
-async def handle_force_sub_channel2(filter, client, message):
-    user_id = message.from_user.id
-    if user_id not in ADMINS and FORCE_SUB_CHANNEL2:
-        try:
-            member = await client.get_chat_member(
-                chat_id=FORCE_SUB_CHANNEL2, user_id=user_id
-            )
-            if member.status not in [
-                ChatMemberStatus.OWNER,
-                ChatMemberStatus.ADMINISTRATOR,
-                ChatMemberStatus.MEMBER,
-            ]:
-                invitelink2 = client.invitelink2
-                await message.reply_text(
-                    "Silakan bergabung dengan CHANNEL2 terlebih dahulu untuk menggunakan perintah ini.",
-                    reply_markup=InlineKeyboardMarkup(
-                        [[InlineKeyboardButton("Join CHANNEL2", url=invitelink2)]]
-                    ),
-                )
-                return False
-        except UserNotParticipant:
-            invitelink2 = client.invitelink2
-            await message.reply_text(
-                "Silakan bergabung dengan CHANNEL2 terlebih dahulu untuk menggunakan perintah ini.",
-                reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("Join CHANNEL2", url=invitelink2)]]
-                ),
-            )
-            return False
-    return True
 
 
 subsgc = filters.create(subsgroup)
 subsch = filters.create(subschannel)
 subsch2 = filters.create(subschannel2)
 subsall = filters.create(is_subscribed)
-force_sub_channel2_handler = filters.create(handle_force_sub_channel2)
