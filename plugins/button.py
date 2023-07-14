@@ -63,4 +63,9 @@ def fsub_button(client, message):
     except IndexError:
         pass
 
+    buttons.append([
+        InlineKeyboardButton(text="ʜᴇʟᴘ & ᴄᴏᴍᴍᴀɴᴅs", callback_data="help"),
+        InlineKeyboardButton(text="ᴛᴜᴛᴜᴘ", callback_data="close"),
+    ])
+
     return buttons
