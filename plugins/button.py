@@ -45,7 +45,7 @@ def fsub_button(client, message):
             InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
         ])
 
-    if not FORCE_SUB_CHANNEL and FORCE_SUB_GROUP:
+    if FORCE_SUB_GROUP and not FORCE_SUB_CHANNEL:
         buttons.insert(0, [
             InlineKeyboardButton(text="ᴊᴏɪɴ ɢʀᴏᴜᴘ", url=client.invitelink2),
         ])
