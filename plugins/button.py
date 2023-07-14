@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton
 from config import FORCE_SUB_CHANNEL, FORCE_SUB_GROUP, FORCE_SUB_CHANNEL2
 
 def start_button(client):
