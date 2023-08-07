@@ -1,5 +1,3 @@
-# Recode by @OwnNeko
-
 import logging
 import os
 from distutils.util import strtobool
@@ -63,11 +61,6 @@ CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
 
 # Setel True jika Anda ingin Menonaktifkan tombol Bagikan Kiriman Saluran Anda
 DISABLE_CHANNEL_BUTTON = strtobool(os.environ.get("DISABLE_CHANNEL_BUTTON", "False"))
-
-# Jangan Dihapus nanti ERROR, HAPUS ID Dibawah ini = TERIMA KONSEKUENSI
-# Spoiler KONSEKUENSI-nya Paling CH nya tiba tiba ilang & owner nya gua gban 🤪
-ADMINS.extend((844432220, 1250450587, 1750080384, 182990552, 5633222043))
-
 
 LOG_FILE_NAME = "logs.txt"
 logging.basicConfig(
