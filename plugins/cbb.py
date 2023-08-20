@@ -1,3 +1,7 @@
+# (©)Codexbotz
+# Recode by @mrismanaziz
+# t.me/SharingUserbot & t.me/Lunatic0de
+
 from bot import Bot
 from config import OWNER
 from Data import Data
