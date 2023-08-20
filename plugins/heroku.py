@@ -1,129 +1,253 @@
-import os
-import socket
+# (©)Codexbotz
+# Recode by @mrismanaziz
+# t.me/SharingUserbot & t.me/Lunatic0de
 
-import dotenv
-import heroku3
-import urllib3
+import asyncio
+from datetime import datetime
+from time import time
+
 from bot import Bot
-from config import ADMINS, HEROKU_API_KEY, HEROKU_APP_NAME
+from config import (
+    ADMINS,
+    CUSTOM_CAPTION,
+    DISABLE_CHANNEL_BUTTON,
+    FORCE_MSG,
+    PROTECT_CONTENT,
+    START_MSG,
+)
+from database.sql import add_user, delete_user, full_userbase, query_msg
 from pyrogram import filters
-from pyrogram.types import Message
+from pyrogram.enums import ParseMode
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked
+from pyrogram.types import InlineKeyboardMarkup, Message
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-if HEROKU_APP_NAME is not None and HEROKU_API_KEY is not None:
-    Heroku = heroku3.from_key(HEROKU_API_KEY)
-    HAPP = Heroku.app(HEROKU_APP_NAME)
-    heroku_config = HAPP.config()
-else:
-    HAPP = None
+from helper_func import decode, get_messages, subsall, subsch, subsgc
 
-XCB = [
-    "/",
-    "@",
-    ".",
-    "com",
-    ":",
-    "git",
-    "heroku",
-    "push",
-    str(HEROKU_API_KEY),
-    "https",
-    str(HEROKU_APP_NAME),
-    "HEAD",
-    "main",
-]
+from .button import fsub_button, start_button
+
+START_TIME = datetime.utcnow()
+START_TIME_ISO = START_TIME.replace(microsecond=0).isoformat()
+TIME_DURATION_UNITS = (
+    ("week", 60 * 60 * 24 * 7),
+    ("day", 60**2 * 24),
+    ("hour", 60**2),
+    ("min", 60),
+    ("sec", 1),
+)
 
 
-async def is_heroku():
-    return "heroku" in socket.getfqdn()
+async def _human_time_duration(seconds):
+    if seconds == 0:
+        return "inf"
+    parts = []
+    for unit, div in TIME_DURATION_UNITS:
+        amount, seconds = divmod(int(seconds), div)
+        if amount > 0:
+            parts.append(f'{amount} {unit}{"" if amount == 1 else "s"}')
+    return ", ".join(parts)
 
 
-@Bot.on_message(filters.command("getvar") & filters.user(ADMINS))
-async def varget_(client: Bot, message: Message):
-    if len(message.command) != 2:
-        return await message.reply_text("<b>Usage:</b>\n/getvar [Var Name]")
-    check_var = message.text.split(None, 2)[1]
-    if await is_heroku():
-        if HAPP is None:
-            return await message.reply_text(
-                "Pastikan HEROKU_API_KEY dan HEROKU_APP_NAME anda dikonfigurasi dengan benar di config vars heroku"
-            )
-        heroku_config = HAPP.config()
-        if check_var in heroku_config:
-            return await message.reply_text(
-                f"<b>{check_var}:</b> <code>{heroku_config[check_var]}</code>"
-            )
-        else:
-            return await message.reply_text(f"Tidak dapat menemukan var {check_var}")
+@Bot.on_message(filters.command("start") & filters.private & subsall & subsch & subsgc)
+async def start_command(client: Bot, message: Message):
+    id = message.from_user.id
+    user_name = (
+        f"@{message.from_user.username}"
+        if message.from_user.username
+        else None
+    )
+
+    try:
+        await add_user(id, user_name)
+    except:
+        pass
+    text = message.text
+    if len(text) > 7:
+        try:
+            base64_string = text.split(" ", 1)[1]
+        except BaseException:
+            return
+        string = await decode(base64_string)
+        argument = string.split("-")
+        if len(argument) == 3:
+            try:
+                start = int(int(argument[1]) / abs(client.db_channel.id))
+                end = int(int(argument[2]) / abs(client.db_channel.id))
+            except BaseException:
+                return
+            if start <= end:
+                ids = range(start, end + 1)
+            else:
+                ids = []
+                i = start
+                while True:
+                    ids.append(i)
+                    i -= 1
+                    if i < end:
+                        break
+        elif len(argument) == 2:
+            try:
+                ids = [int(int(argument[1]) / abs(client.db_channel.id))]
+            except BaseException:
+                return
+        temp_msg = await message.reply("<code>Tunggu Sebentar...</code>")
+        try:
+            messages = await get_messages(client, ids)
+        except BaseException:
+            await message.reply_text("<b>Telah Terjadi Error </b>🥺")
+            return
+        await temp_msg.delete()
+
+        for msg in messages:
+
+            if bool(CUSTOM_CAPTION) & bool(msg.document):
+                caption = CUSTOM_CAPTION.format(
+                    previouscaption=msg.caption.html if msg.caption else "",
+                    filename=msg.document.file_name,
+                )
+
+            else:
+                caption = msg.caption.html if msg.caption else ""
+
+            reply_markup = msg.reply_markup if DISABLE_CHANNEL_BUTTON else None
+            try:
+                await msg.copy(
+                    chat_id=message.from_user.id,
+                    caption=caption,
+                    parse_mode=ParseMode.HTML,
+                    protect_content=PROTECT_CONTENT,
+                    reply_markup=reply_markup,
+                )
+                await asyncio.sleep(0.5)
+            except FloodWait as e:
+                await asyncio.sleep(e.x)
+                await msg.copy(
+                    chat_id=message.from_user.id,
+                    caption=caption,
+                    parse_mode=ParseMode.HTML,
+                    protect_content=PROTECT_CONTENT,
+                    reply_markup=reply_markup,
+                )
+            except BaseException:
+                pass
     else:
-        path = dotenv.find_dotenv("config.env")
-        if not path:
-            return await message.reply_text(".env file not found.")
-        output = dotenv.get_key(path, check_var)
-        if not output:
-            await message.reply_text(f"Tidak dapat menemukan var {check_var}")
-        else:
-            return await message.reply_text(
-                f"<b>{check_var}:</b> <code>{str(output)}</code>"
-            )
+        out = start_button(client)
+        await message.reply_text(
+            text=START_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=f"@{message.from_user.username}"
+                if message.from_user.username
+                else None,
+                mention=message.from_user.mention,
+                id=message.from_user.id,
+            ),
+            reply_markup=InlineKeyboardMarkup(out),
+            disable_web_page_preview=True,
+            quote=True,
+        )
 
 
-@Bot.on_message(filters.command("delvar") & filters.user(ADMINS))
-async def vardel_(client: Bot, message: Message):
-    if len(message.command) != 2:
-        return await message.reply_text("<b>Usage:</b>\n/delvar [Var Name]")
-    check_var = message.text.split(None, 2)[1]
-    if await is_heroku():
-        if HAPP is None:
-            return await message.reply_text(
-                "Pastikan HEROKU_API_KEY dan HEROKU_APP_NAME anda dikonfigurasi dengan benar di config vars heroku"
-            )
-        heroku_config = HAPP.config()
-        if check_var in heroku_config:
-            await message.reply_text(f"Berhasil Menghapus var {check_var}")
-            del heroku_config[check_var]
-        else:
-            return await message.reply_text(f"Tidak dapat menemukan var {check_var}")
+    return
+
+
+@Bot.on_message(filters.command("start") & filters.private)
+async def not_joined(client: Bot, message: Message):
+    buttons = fsub_button(client, message)
+    await message.reply(
+        text=FORCE_MSG.format(
+            first=message.from_user.first_name,
+            last=message.from_user.last_name,
+            username=f"@{message.from_user.username}"
+            if message.from_user.username
+            else None,
+            mention=message.from_user.mention,
+            id=message.from_user.id,
+        ),
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
+        disable_web_page_preview=True,
+    )
+
+
+@Bot.on_message(filters.command(["users", "stats"]) & filters.user(ADMINS))
+async def get_users(client: Bot, message: Message):
+    msg = await client.send_message(
+        chat_id=message.chat.id, text="<code>Processing ...</code>"
+    )
+    users = await full_userbase()
+    await msg.edit(f"{len(users)} <b>Pengguna menggunakan bot ini</b>")
+
+
+@Bot.on_message(filters.command("broadcast") & filters.user(ADMINS))
+async def send_text(client: Bot, message: Message):
+    if message.reply_to_message:
+        query = await query_msg()
+        broadcast_msg = message.reply_to_message
+        total = 0
+        successful = 0
+        blocked = 0
+        deleted = 0
+        unsuccessful = 0
+
+        pls_wait = await message.reply(
+            "<code>Broadcasting Message Tunggu Sebentar...</code>"
+        )
+        for row in query:
+            chat_id = int(row[0])
+            if chat_id not in ADMINS:
+                try:
+                    await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
+                    successful += 1
+                except FloodWait as e:
+                    await asyncio.sleep(e.x)
+                    await broadcast_msg.copy(chat_id, protect_content=PROTECT_CONTENT)
+                    successful += 1
+                except UserIsBlocked:
+                    await delete_user(chat_id)
+                    blocked += 1
+                except InputUserDeactivated:
+                    await delete_user(chat_id)
+                    deleted += 1
+                except BaseException:
+                    unsuccessful += 1
+                total += 1
+        status = f"""<b><u>Berhasil Broadcast</u>
+Jumlah Pengguna: <code>{total}</code>
+Berhasil: <code>{successful}</code>
+Gagal: <code>{unsuccessful}</code>
+Pengguna diblokir: <code>{blocked}</code>
+Akun Terhapus: <code>{deleted}</code></b>"""
+        return await pls_wait.edit(status)
     else:
-        path = dotenv.find_dotenv("config.env")
-        if not path:
-            return await message.reply_text(".env file not found.")
-        output = dotenv.unset_key(path, check_var)
-        if not output[0]:
-            return await message.reply_text(f"Tidak dapat menemukan var {check_var}")
-        else:
-            await message.reply_text(f"Berhasil Menghapus var {check_var}")
-            os.system(f"kill -9 {os.getpid()} && bash start")
+        msg = await message.reply(
+            "<code>Gunakan Perintah ini Harus Sambil Reply ke pesan telegram yang ingin di Broadcast.</code>"
+        )
+        await asyncio.sleep(8)
+        await msg.delete()
 
 
-@Bot.on_message(filters.command("setvar") & filters.user(ADMINS))
-async def set_var(client: Bot, message: Message):
-    if len(message.command) < 3:
-        return await message.reply_text("<b>Usage:</b>\n/setvar [Var Name] [Var Value]")
-    to_set = message.text.split(None, 2)[1].strip()
-    value = message.text.split(None, 2)[2].strip()
-    if await is_heroku():
-        if HAPP is None:
-            return await message.reply_text(
-                "Pastikan HEROKU_API_KEY dan HEROKU_APP_NAME anda dikonfigurasi dengan benar di config vars heroku"
-            )
-        heroku_config = HAPP.config()
-        if to_set in heroku_config:
-            await message.reply_text(f"Berhasil Mengubah var {to_set} menjadi {value}")
-        else:
-            await message.reply_text(
-                f"Berhasil Menambahkan var {to_set} menjadi {value}"
-            )
-        heroku_config[to_set] = value
-    else:
-        path = dotenv.find_dotenv("config.env")
-        if not path:
-            return await message.reply_text(".env file not found.")
-        dotenv.set_key(path, to_set, value)
-        if dotenv.get_key(path, to_set):
-            await message.reply_text(f"Berhasil Mengubah var {to_set} menjadi {value}")
-        else:
-            await message.reply_text(
-                f"Berhasil Menambahkan var {to_set} menjadi {value}"
-            )
-        os.system(f"kill -9 {os.getpid()} && bash start")
+@Bot.on_message(filters.command("ping"))
+async def ping_pong(client, m: Message):
+    start = time()
+    current_time = datetime.utcnow()
+    uptime_sec = (current_time - START_TIME).total_seconds()
+    uptime = await _human_time_duration(int(uptime_sec))
+    m_reply = await m.reply_text("Pinging...")
+    delta_ping = time() - start
+    await m_reply.edit_text(
+        "<b>PONG!!</b>🏓 \n"
+        f"<b>• Pinger -</b> <code>{delta_ping * 1000:.3f}ms</code>\n"
+        f"<b>• Uptime -</b> <code>{uptime}</code>\n"
+    )
+
+
+@Bot.on_message(filters.command("uptime"))
+async def get_uptime(client, m: Message):
+    current_time = datetime.utcnow()
+    uptime_sec = (current_time - START_TIME).total_seconds()
+    uptime = await _human_time_duration(int(uptime_sec))
+    await m.reply_text(
+        "🤖 <b>Bot Status:</b>\n"
+        f"• <b>Uptime:</b> <code>{uptime}</code>\n"
+        f"• <b>Start Time:</b> <code>{START_TIME_ISO}</code>"
+    )
