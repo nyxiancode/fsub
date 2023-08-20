@@ -28,7 +28,7 @@ def gen_chlog(repo, diff):
     for c in repo.iter_commits(diff):
         ch_log += (
             f"\n\n💬 <b>{c.count()}</b> 🗓 <b>[{c.committed_datetime.strftime(d_form)}]</b>\n<b>"
-            f"<a href={upstream_repo_url.rstrip('/')}/commit/{c}>[{c.summary}]</a></b>  <code>{c.author}</code>"
+            f"<a href={upstream_repo_url.rstrip('/')}/commit/{c}>[{c.summary}]</a></b> 👨‍💻 <code>{c.author}</code>"
         )
         tldr_log += f"\n\n💬 {c.count()} 🗓 [{c.committed_datetime.strftime(d_form)}]\n[{c.summary}] 👨‍💻 {c.author}"
     if ch_log:
